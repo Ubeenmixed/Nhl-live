@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080d16">
+<meta name="description" content="Live NHL scores, favorites, schedule and standings.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>NHL Live</title>
+<style>
+:root{color-scheme:dark;--bg:#080d16;--panel:#111a29;--panel2:#172337;--line:#27364b;--text:#f4f7fb;--muted:#9aaac0;--accent:#55e0a3;--blue:#5aa9ff;--danger:#ff667a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#14243a 0%,var(--bg) 48%);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+button{font:inherit;cursor:pointer} .app{max-width:850px;margin:auto;padding:env(safe-area-inset-top) 14px calc(86px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;justify-content:space-between;padding:22px 2px 16px;gap:12px}
+.brand{display:flex;align-items:center;gap:11px}.shield{display:grid;place-items:center;width:42px;height:42px;border:2px solid var(--accent);border-radius:12px;font-weight:900;font-style:italic;letter-spacing:-2px;color:var(--accent);transform:skew(-5deg)}
+h1{font-size:21px;letter-spacing:.08em;margin:0;font-weight:900}.sub{color:var(--muted);font-size:12px;margin-top:2px}
+.live-status{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px;white-space:nowrap}.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px #55e0a388}
+.tabs{display:flex;gap:7px;overflow:auto;padding:0 0 15px;scrollbar-width:none}.tabs button{flex:1;min-width:94px;background:#111a29;border:1px solid var(--line);border-radius:11px;padding:11px 12px;color:var(--muted);font-weight:700}.tabs button.active{background:var(--accent);border-color:var(--accent);color:#07140f}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:8px 1px 12px;gap:10px}.section-head h2{font-size:17px;margin:0}.date-label{color:var(--muted);font-size:12px}
+.filter-row{display:flex;gap:8px;margin-bottom:12px}.filter{border:1px solid var(--line);border-radius:999px;padding:7px 12px;background:transparent;color:var(--muted);font-size:12px}.filter.active{background:var(--panel2);color:var(--text);border-color:#49617f}
+.games{display:grid;gap:10px}.game{background:linear-gradient(135deg,#121d2e,#0e1624);border:1px solid var(--line);border-radius:16px;padding:14px 13px;box-shadow:0 8px 22px #0002}.game-top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:11px;margin-bottom:12px;gap:8px}.state{font-weight:800;letter-spacing:.04em}.state.live{color:var(--accent)}.state.final{color:var(--muted)}
+.teamline{display:grid;grid-template-columns:minmax(0,1fr) 35px 27px;align-items:center;gap:8px;padding:5px 0}.teamline + .teamline{margin-top:3px}.team{display:flex;align-items:center;gap:10px;min-width:0}.logo{width:34px;height:34px;object-fit:contain;flex-shrink:0}.teamname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}.abbr{display:block;color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.06em}.score{font-size:25px;font-weight:900;text-align:right;font-variant-numeric:tabular-nums}.star{border:0;background:transparent;color:#52647b;font-size:23px;padding:0 1px}.star.on{color:#ffd66b}.empty,.message{padding:24px 18px;text-align:center;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:14px}.error{color:#ffb1ba}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--panel)}table{border-collapse:collapse;width:100%;min-width:550px;font-size:12px}th,td{text-align:right;padding:11px 10px;border-bottom:1px solid #263349;font-variant-numeric:tabular-nums}th{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em;background:#172337}td:first-child,th:first-child{text-align:left}tr:last-child td{border-bottom:0}.rank{color:var(--muted);width:28px}.stand-team{display:flex;align-items:center;gap:7px;white-space:nowrap;font-weight:700}.stand-team img{width:24px;height:24px;object-fit:contain}.select{background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:8px 10px;border-radius:9px}
+.bottom-note{text-align:center;color:#718198;font-size:11px;margin:22px 0 0}.bottom-nav{position:fixed;bottom:0;left:0;right:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#080d16ee;backdrop-filter:blur(16px);border-top:1px solid #243147;display:flex;justify-content:center;z-index:5}.bottom-nav-inner{width:100%;max-width:600px;display:flex;justify-content:space-around}.bottom-nav button{border:0;background:transparent;color:var(--muted);font-size:11px;display:grid;justify-items:center;gap:3px;padding:4px 14px}.bottom-nav button span{font-size:19px}.bottom-nav button.active{color:var(--accent)}
+@media(min-width:620px){.app{padding-left:22px;padding-right:22px}.games{grid-template-columns:repeat(2,minmax(0,1fr))}.game{align-self:start}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="brand"><div class="shield">NHL</div><div><h1>NHL <span style="color:var(--accent)">LIVE</span></h1><div class="sub">Scores. Schedule. Standings.</div></div></div><div class="live-status"><i class="dot"></i><span id="refreshLabel">Connecting…</span></div></header>
+<nav class="tabs" aria-label="Main navigation"><button class="active" data-page="scores">Live Scores</button><button data-page="schedule">Schedule</button><button data-page="standings">Standings</button><button data-page="favorites">★ Favorites</button></nav>
+<main id="content"><div class="message">Loading NHL data…</div></main>
+<p class="bottom-note">Unofficial fan app · Data from NHL web endpoints · Scores refresh every 15 seconds</p>
+</div>
+<nav class="bottom-nav"><div class="bottom-nav-inner"><button class="active" data-page="scores"><span>▣</span>Scores</button><button data-page="schedule"><span>▦</span>Schedule</button><button data-page="standings"><span>▤</span>Standings</button><button data-page="favorites"><span>☆</span>Favorites</button></div></nav>
+<script>
+const API='https://api-web.nhle.com/v1';
+const REFRESH_MS=15000;
+const $=s=>document.querySelector(s);
+let page='scores', scoreData=null, scheduleData=null, standingsData=null, lastUpdated=null, loading=false;
+let favorites=new Set(JSON.parse(localStorage.getItem('nhl-favorites')||'[]'));
+let scheduleDate=new Date(); scheduleDate.setHours(12,0,0,0);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate=d=>d.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+const dateKey=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const teamName=t=>t?.placeName?.default&&t?.commonName?.default?`${t.placeName.default} ${t.commonName.default}`:(t?.commonName?.default||t?.name?.default||t?.abbrev||'Team');
+const teamAbbr=t=>t?.abbrev||t?.triCode||'';
+const logo=t=>t?.logo||t?.darkLogo||'';
+const gameDate=g=>g?.startTimeUTC?new Date(g.startTimeUTC):null;
+function status(g){
+ const s=(g.gameState||g.gameScheduleState||'').toUpperCase();
+ if(['LIVE','CRIT'].includes(s)){const p=g.periodDescriptor?.number;const type=g.periodDescriptor?.periodType;const clock=g.clock?.timeRemaining;return {label:`${type==='OT'?'OT':type==='SO'?'SO':p?`P${p}`:'LIVE'}${clock?` · ${clock}`:''}`,cls:'live'};}
+ if(['FINAL','OFF'].includes(s))return {label:s==='OFF'?'FINAL':'FINAL',cls:'final'};
+ if(s==='FUT'||s==='PRE'||s==='SCHEDULED')return {label:gameDate(g)?gameDate(g).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}):'UPCOMING',cls:''};
+ return {label:s||'SCHEDULED',cls:''};
+}
+function gameCard(g){
+ const a=g.awayTeam||{},h=g.homeTeam||{},st=status(g),id=g.id||`${teamAbbr(a)}-${teamAbbr(h)}-${g.startTimeUTC}`;
+ return `<article class="game"><div class="game-top"><span>${esc(g.venue?.default||g.venue||'NHL GAME')}</span><span class="state ${st.cls}">${esc(st.label)}</span></div>
+ ${teamLine(a,g.awayTeam?.score??'-',id)}${teamLine(h,g.homeTeam?.score??'-',id)}
+ <div style="border-top:1px solid #263349;margin-top:9px;padding-top:9px;display:flex;justify-content:space-between;color:var(--muted);font-size:11px"><span>${esc(g.gameType===3?'Playoffs':'Regular season')}</span><span>${esc(g.gameState==='LIVE'||g.gameState==='CRIT'?'IN PROGRESS':g.gameState==='FINAL'?'FINAL':'')}</span></div></article>`;
+}
+function teamLine(t,score,id){const ab=teamAbbr(t);return `<div class="teamline"><div class="team">${logo(t)?`<img class="logo" src="${esc(logo(t))}" alt="" loading="lazy">`:`<div class="logo"></div>`}<div class="teamname">${esc(teamName(t))}<span class="abbr">${esc(ab)}</span></div></div><div class="score">${esc(score)}</div><button class="star ${favorites.has(ab)?'on':''}" aria-label="Toggle ${esc(teamName(t))} favorite" data-fav="${esc(ab)}" title="Favorite team">${favorites.has(ab)?'★':'☆'}</button></div>`}
+function allGames(data){if(!data)return [];if(Array.isArray(data.games))return data.games;if(Array.isArray(data.gameWeek))return data.gameWeek.flatMap(x=>x.games||[]);return []}
+function dateGames(data,date){if(data?.gameWeek){const found=data.gameWeek.find(d=>d.date===date);return found?.games||[];}return allGames(data).filter(g=>gameDate(g)&&dateKey(gameDate(g))===date);}
+function setPage(p){page=p;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));render();}
+async function fetchJson(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(`NHL data request failed (${r.status})`);return r.json();}
+async function refreshScores(){
+ if(loading)return;loading=true;
+ try{scoreData=await fetchJson(`${API}/score/now`);lastUpdated=new Date();$('#refreshLabel').textContent=`Updated ${lastUpdated.toLocaleTimeString([], {hour:'numeric',minute:'2-digit',second:'2-digit'})}`;if(page==='scores'||page==='favorites')render();}
+ catch(e){$('#refreshLabel').textContent='Data unavailable';if(!scoreData)$('#content').innerHTML=`<div class="message error">Couldn't load NHL scores right now.<br><br>${esc(e.message)}<br><br>Check your connection and try again.</div>`;}
+ finally{loading=false;}
+}
+async function refreshSchedule(){
+ try{scheduleData=await fetchJson(`${API}/schedule/${dateKey(scheduleDate)}`);render();}
+ catch(e){$('#content').innerHTML=`<div class="message error">Couldn't load the schedule. Please try again later.</div>`;}
+}
+async function refreshStandings(){
+ try{standingsData=await fetchJson(`${API}/standings/now`);render();}
+ catch(e){$('#content').innerHTML=`<div class="message error">Couldn't load standings. Please try again later.</div>`;}
+}
+function renderScores(){
+ const games=allGames(scoreData);const today=dateKey(new Date());let selected=games;
+ if(page==='favorites')selected=games.filter(g=>favorites.has(teamAbbr(g.awayTeam))||favorites.has(teamAbbr(g.homeTeam)));
+ const live=selected.filter(g=>['LIVE','CRIT'].includes(g.gameState));
+ const upcoming=selected.filter(g=>['FUT','PRE','SCHEDULED'].includes(g.gameState));
+ const final=selected.filter(g=>['FINAL','OFF'].includes(g.gameState));
+ selected=[...live,...upcoming,...final];
+ return `<div class="section-head"><h2>${page==='favorites'?'Favorite Teams':'Live Scores'}</h2><span class="date-label">${esc(fmtDate(new Date()))}</span></div>
+ <div class="filter-row"><button class="filter active" id="refreshNow">↻ Refresh now</button><span class="filter">${live.length} live · ${upcoming.length} upcoming · ${final.length} final</span></div>
+ ${!selected.length?`<div class="empty">${page==='favorites'?(favorites.size?'No games for your favorite teams right now.':'Tap ☆ beside a team to add it to Favorites.'):'No NHL games scheduled today.'}</div>`:`<div class="games">${selected.map(gameCard).join('')}</div>`}`;
+}
+function renderSchedule(){
+ const games=dateGames(scheduleData,dateKey(scheduleDate));
+ return `<div class="section-head"><h2>Schedule</h2><select class="select" id="datePicker" aria-label="Choose date"><option value="${dateKey(scheduleDate)}">${esc(fmtDate(scheduleDate))}</option></select></div>
+ <div class="filter-row"><button class="filter" id="prevDay">← Previous day</button><button class="filter" id="today">Today</button><button class="filter" id="nextDay">Next day →</button></div>
+ ${!games.length?`<div class="empty">No games listed for ${esc(fmtDate(scheduleDate))}. Try another date.</div>`:`<div class="games">${games.map(gameCard).join('')}</div>`}`;
+}
+function renderStandings(){
+ const rows=standingsData?.standings||[];
+ if(!rows.length)return `<div class="section-head"><h2>League Standings</h2></div><div class="empty">Standings are not available right now.</div>`;
+ const groups={};
+ for(const r of rows){const d=r.divisionName||'League';(groups[d]??=[]).push(r);}
+ return `<div class="section-head"><h2>Standings</h2><span class="date-label">Current season</span></div>
+ <div class="filter-row"><select class="select" id="standingsGroup"><option value="all">All divisions</option>${Object.keys(groups).sort().map(g=>`<option value="${esc(g)}">${esc(g)}</option>`).join('')}</select></div>
+ <div id="standingsTables">${Object.entries(groups).map(([group,items])=>`<section class="standing-group" data-group="${esc(group)}" style="margin-bottom:16px"><h3 style="font-size:13px;color:var(--muted);margin:12px 2px">${esc(group)}</h3><div class="table-wrap"><table><thead><tr><th>Team</th><th>GP</th><th>W</th><th>L</th><th>OT</th><th>PTS</th><th>RW</th></tr></thead><tbody>${items.sort((a,b)=>(b.points||0)-(a.points||0)).map((r,i)=>`<tr><td><div class="stand-team"><span class="rank">${i+1}</span>${r.teamLogo?`<img src="${esc(r.teamLogo)}" alt="">`:''}<span>${esc(r.teamName?.default||r.teamAbbrev?.default||'Team')}</span></div></td><td>${r.gamesPlayed??'-'}</td><td>${r.wins??'-'}</td><td>${r.losses??'-'}</td><td>${r.otLosses??'-'}</td><td><strong>${r.points??'-'}</strong></td><td>${r.regulationWins??'-'}</td></tr>`).join('')}</tbody></table></div></section>`).join('')}</div>`;
+}
+function render(){
+ const c=$('#content');
+ if(page==='scores'||page==='favorites')c.innerHTML=renderScores();
+ else if(page==='schedule')c.innerHTML=renderSchedule();
+ else c.innerHTML=renderStandings();
+}
+document.addEventListener('click',async e=>{
+ const nav=e.target.closest('[data-page]');if(nav){setPage(nav.dataset.page);if(page==='schedule'&&!scheduleData)refreshSchedule();if(page==='standings'&&!standingsData)refreshStandings();return;}
+ const fav=e.target.closest('[data-fav]');if(fav){const ab=fav.dataset.fav;if(favorites.has(ab))favorites.delete(ab);else favorites.add(ab);localStorage.setItem('nhl-favorites',JSON.stringify([...favorites]));render();return;}
+ if(e.target.closest('#refreshNow')){await refreshScores();return;}
+ if(e.target.closest('#prevDay')){scheduleDate.setDate(scheduleDate.getDate()-1);await refreshSchedule();return;}
+ if(e.target.closest('#nextDay')){scheduleDate.setDate(scheduleDate.getDate()+1);await refreshSchedule();return;}
+ if(e.target.closest('#today')){scheduleDate=new Date();scheduleDate.setHours(12,0,0,0);await refreshSchedule();return;}
+});
+document.addEventListener('change',e=>{
+ if(e.target.id==='standingsGroup'){document.querySelectorAll('.standing-group').forEach(g=>g.hidden=e.target.value!=='all'&&g.dataset.group!==e.target.value);}
+ if(e.target.id==='datePicker'){scheduleDate=new Date(e.target.value+'T12:00:00');refreshSchedule();}
+});
+document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>{}));
+refreshScores();
+setInterval(()=>{if(document.visibilityState==='visible')refreshScores();},REFRESH_MS);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshScores();});
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
